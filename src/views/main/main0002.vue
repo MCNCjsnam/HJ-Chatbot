@@ -2,39 +2,63 @@
   <div class="container">
     <div class="main-content">
       <div class="chat-area">
-        <div class="chat-card userchat">AI, 오늘 날씨 어때?</div>
-        <div class="chat-card aichat">
-          안녕하세요! 오늘 날씨는 맑고 기온은 22도 정도입니다. 좋은 하루 되세요!
-        </div>
-        <div class="chat-card userchat">
-          오, 좋다! 오늘 저녁 뭐 먹을지 고민 중인데, 추천 좀 해줘.
-        </div>
-        <div class="chat-card aichat">
-          저녁으로는 치킨이나 피자가 괜찮을 것 같아요. 아니면 한식으로 불고기도
-          좋은 선택이에요!
-        </div>
-        <div class="chat-card userchat">
-          불고기 좋다! 그럼 나중에 레시피 좀 알려줘.
-        </div>
-        <div class="chat-card aichat">
-          물론이죠! 언제든지 레시피 준비해드릴게요.
-        </div>
-        <div class="chat-card userchat">고마워, AI! 정말 똑똑하네.</div>
-        <div class="chat-card aichat">
-          감사합니다! 언제든지 도움이 필요하면 말씀해주세요!
+        <div
+          class="chat-contents"
+          v-for="(chatList, idx) in chatList"
+          :key="idx">
+          <div class="chat-card userchat">{{chatList.userMessage}}</div>
+          <div class="chat-card aichat">
+            <img class="chat-aiImg" src='@/assets/img/chat-icon.png' @click="todoRobot">
+            <span>{{chatList.aiMessage}}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="search-content footer-fix">
-      <input class="input01" type="text" placeholder="메시지를 입력하세요" />
-      <button class="btn01 ml-5">전송</button>
+      <input
+        class="input01"
+        type="text"
+        placeholder="메시지를 입력하세요"
+        v-model="inpMessage"
+      />
+      <button class="btn01 ml-5" @click="fetchMessage()">전송</button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import "@/assets/css/global.scss";
+import axios from "axios";
+
+const chatList = ref([]);
+const inpMessage = ref("");
+
+async function fetchMessage() {
+  try {
+    const response = await axios.get("./data/data.json");
+    const result = await response.data;
+    if (result.code === 200) {
+
+      chatList.value.push({
+        userMessage: inpMessage.value,
+        aiMessage: result.data.messages[0]
+      });
+
+      inpMessage.value = '';
+    }
+    else{
+      alert("회사내부망이용 및 임현영 연구원을 찾아가세요");
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+function todoRobot() {
+  alert("임현영은 남자이며 아직 준비중입니다.")
+}
 </script>
 
 <style>

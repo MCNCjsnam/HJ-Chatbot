@@ -1,0 +1,8 @@
+{
+    "code": 500,
+    "data": {
+        "errorCode": "LGC02",
+        "errorMessage": "로직 처리 중 NULL 예외가 발생했습니다.",
+        "errorDetailMessage": "Cannot invoke \"java.util.List.stream()\" because \"this.messages\" is null"
+    }
+}

@@ -28,12 +28,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import "@/assets/css/global.scss";
 import axios from "axios";
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
+const inpMessage = ref(route.query.inpMessage);
 const chatList = ref([]);
-const inpMessage = ref("");
+
+onMounted(() => {
+  if(inpMessage.value) {
+    fetchMessage();
+  }
+})
 
 async function fetchMessage() {
   try {

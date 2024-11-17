@@ -8,10 +8,6 @@ export {
 // 화면열기
 const pageOpen = function (name, params, useState) {
 	if (router.hasRoute(name)) {
-		if (params) {
-			// const store = useStore();
-			// store.$patch({ pageParam: params})
-		}
 		if (useState) {
 			router.push({ name, state: params });
 		} else {

@@ -4,7 +4,12 @@
       <div class="search-content">
         <div class="search-title">🤖 무엇을 도와드릴까요?</div>
         <div class="mt-5">
-          <input class="input01" type="text" placeholder="메시지를 입력하세요" v-model="inpMessage"/>
+          <input 
+            class="input01" 
+            type="text" 
+            placeholder="메시지를 입력하세요" 
+            v-model="inpMessage"
+            v-on:keyup.enter="goTochat"/>
           <button class="btn01 ml-5" @click="goTochat">전송</button>
         </div>
       </div>

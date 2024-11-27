@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="main-content">
+    <div class="main-content main">
       <div class="search-content">
         <div class="search-title">🤖 무엇을 도와드릴까요?</div>
         <div class="mt-5">

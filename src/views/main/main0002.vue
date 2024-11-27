@@ -52,6 +52,7 @@
 </template>
 
 <script setup>
+/* eslint-disable */
 import { ref, onMounted } from "vue";
 import "@/assets/css/global.scss";
 import axios from "axios";
@@ -78,8 +79,9 @@ onMounted(async () => {
     randomCode.value = route.params.randomCode;
   }
 
-  if (inpMessage.value) {
-    await fetchMessage();
+  if (history.state.inpMessage) {
+    inpMessage.value = await history.state.inpMessage
+    fetchMessage();
   }
 });
 
@@ -196,7 +198,7 @@ async function fetchHistoryDetail(chatID) {
 
 
 function todoRobot() {
-  alert("임현영은 남자이며 아직 준비중입니다.");
+  alert("임채성: 1996년생 11월 23일 \n특징: 배드민턴을 하다가 허리를다침");
 }
 </script>
 

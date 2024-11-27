@@ -55,22 +55,29 @@
 import { ref, onMounted } from "vue";
 import "@/assets/css/global.scss";
 import axios from "axios";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/css/index.css";
 
 const route = useRoute();
+const router = useRouter();
 
 /* 채팅관련 */
-const inpMessage = ref(route.query.inpMessage); // 사용자 메시지
-const chatList = ref([]);                       // 봇 메시지
-const isLoading = ref(false);                   // 로딩 상태
+const inpMessage = ref(history.state.inpMessage); // 사용자 메시지
+const chatList = ref([]);                         // 봇 메시지
+const isLoading = ref(false);                     // 로딩 상태
+const randomCode = ref();                         // 랜덤 코드
 
 /* 히스토리 */
 const groupedHistory = ref({});   //날짜별로 묶은 데이터
 
 onMounted(async () => {
-  await fetchHistory()
+  await fetchHistory();
+  
+  if(route.params.randomCode) {
+    randomCode.value = route.params.randomCode;
+  }
+
   if (inpMessage.value) {
     await fetchMessage();
   }
@@ -151,6 +158,10 @@ async function fetchHistory() {
 async function fetchHistoryDetail(chatID) {
   try {
     isLoading.value = true;
+
+    randomCode.value = chatID;
+    const newRoute = { ...route, params: { ...route.params, randomCode: chatID } };
+    router.push(newRoute);
 
     const response = await axios.get("/api/chat-service/api/v1/gpt/history/detail", {
       params: {

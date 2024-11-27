@@ -18,18 +18,24 @@
 </template>
 
 <script setup>
-/* eslint-disable */
 import { ref } from 'vue'
 import "@/assets/css/global.scss";
-import * as util from '@/shared/utils/util';
-
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const inpMessage = ref('');
+const randomCode = ref(crypto.randomUUID());
+
 function goTochat() {
-  // state를 전달하면서 페이지 이동
-  router.push({ name: 'main0002', query : { inpMessage: inpMessage.value } });
+  router.push({
+    name: 'main0002',
+    state: {
+      inpMessage: inpMessage.value
+    },
+    params: {
+      randomCode: randomCode.value
+    }
+  })
 }
 </script>
 

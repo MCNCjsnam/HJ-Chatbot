@@ -6,7 +6,7 @@ const mainRoutes = [
         component: () => import(/* webpackChunkName: "main" */ '@/views/main/main0001.vue')
     },
     {
-        path: '/main0002',
+        path: '/main0002/:randomCode?',
         name: 'main0002',
         props: true,
         component: () => import(/* webpackChunkName: "main" */ '@/views/main/main0002.vue')

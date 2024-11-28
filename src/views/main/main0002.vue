@@ -6,7 +6,7 @@
           <div class="chat-title">{{groupedHistory.date}}</div>
           <div class="history-list">
             <div class="history-item" v-for="(items,idx) in groupedHistory.items" :key="idx"
-            @click="fetchHistoryDetail(items.seq)">{{ items.title }}</div>
+            @click="showHistory(items.id)">{{ items.items[0].title }}</div>
           </div>
         </div>
       </div>
@@ -70,20 +70,29 @@ const isLoading = ref(false);                     // 로딩 상태
 const randomCode = ref();                         // 랜덤 코드
 
 /* 히스토리 */
-const groupedHistory = ref({});   //날짜별로 묶은 데이터
+const groupedHistory = ref({});   // 날짜별로 묶은 데이터
+const isFirst = ref(true)         // 처음 채팅하는지의 대한 여부
 
 onMounted(async () => {
   await fetchHistory();
-  
-  if(route.params.randomCode) {
-    randomCode.value = route.params.randomCode;
-  }
 
-  if (history.state.inpMessage) {
-    inpMessage.value = await history.state.inpMessage
-    fetchMessage();
+  inpMessage.value = await history.state.inpMessage;
+  randomCode.value = await route.params.randomCode;
+
+  if (inpMessage.value && randomCode.value) {
+    await fetchMessage();
+    history.replaceState({ ...history.state, inpMessage: null }, '');
+
+    setTimeout(() => {
+      fetchHistory();
+    },2000)
+  }
+  else if (!inpMessage.value && randomCode.value) {
+    fetchHistoryDetail();
+    isFirst.value = false;
   }
 });
+
 
 /* 메시지 전송 */
 async function fetchMessage() {
@@ -92,6 +101,7 @@ async function fetchMessage() {
 
     const response = await axios.post("/api/chat-service/api/v1/gpt/question", {
       messages: [inpMessage.value],
+      id: randomCode.value
     });
 
     const result = await response.data;
@@ -102,11 +112,11 @@ async function fetchMessage() {
       });
     } 
     else {
-      alert("회사내부망이용 및 임현영 연구원을 찾아가세요");
+      alert("회사내부망이용을 이용해주세요");
     }
   } 
   catch (error) {
-    alert('임현영 연구원이 서버를 껏습니다. 임현영에게 찾아가세요');
+    alert('현재 서버가 실행되고있지 않습니다');
   } 
   finally {
     isLoading.value = false;
@@ -125,30 +135,42 @@ async function fetchHistory() {
     if (result.code === 200) {
       const historyList = result.data.historyList;
 
-      // 날짜별로 데이터를 그룹화
-      groupedHistory.value = historyList.reduce((acc, item) => {
-        const dateKey = item.date.split(' ')[0]; // Extract the date (e.g., "2024-11-26")
+      // Group by date and then by ID
+      const dateGrouped = historyList.reduce((acc, item) => {
+        const dateKey = item.date.split(' ')[0];
 
         if (!acc[dateKey]) {
-          acc[dateKey] = [];
+          acc[dateKey] = {};
         }
-        acc[dateKey].push(item);
+
+        if (!acc[dateKey][item.id]) {
+          acc[dateKey][item.id] = [];
+        }
+
+        acc[dateKey][item.id].push({
+          seq: item.seq,
+          title: item.title,
+          date: item.date
+        });
 
         return acc;
       }, {});
 
-      // 날짜별 그룹을 배열로 변환
-      groupedHistory.value = Object.keys(groupedHistory.value).map(date => ({
+      // Transform the grouped data into the desired format
+      groupedHistory.value = Object.keys(dateGrouped).map(date => ({
         date,
-        items: groupedHistory.value[date]
+        items: Object.keys(dateGrouped[date]).map(id => ({
+          id,
+          items: dateGrouped[date][id]
+        }))
       }));
 
     } else {
-      alert("회사 내부망을 이용하고, 임현영 연구원을 찾아가세요.");
+      alert("회사내부망이용을 이용해주세요");
     }
   } 
   catch (error) {
-    alert('임현영 연구원이 서버를 껐습니다. 임현영에게 찾아가세요.');
+    alert('현재 서버가 실행되고있지 않습니다');
   } 
   finally {
     isLoading.value = false;
@@ -156,18 +178,22 @@ async function fetchHistory() {
   }
 }
 
+async function showHistory(chatID) {
+  randomCode.value = await chatID;
+  fetchHistoryDetail();
+}
+
 /* 메시지 히스토리 디테일 */
-async function fetchHistoryDetail(chatID) {
+async function fetchHistoryDetail() {
   try {
     isLoading.value = true;
 
-    randomCode.value = chatID;
-    const newRoute = { ...route, params: { ...route.params, randomCode: chatID } };
+    const newRoute = { ...route, params: { ...route.params, randomCode: randomCode.value } };
     router.push(newRoute);
 
     const response = await axios.get("/api/chat-service/api/v1/gpt/history/detail", {
       params: {
-        seq: chatID,  // chatID 값을 params로 전달
+        id: randomCode.value,
       },
     });
 
@@ -183,11 +209,11 @@ async function fetchHistoryDetail(chatID) {
         });
       });
     } else {
-      alert("회사내부망이용 및 임현영 연구원을 찾아가세요");
+      alert("회사내부망이용을 이용해주세요");
     }
   } 
   catch (error) {
-    alert('임현영 연구원이 서버를 껏습니다. 임현영에게 찾아가세요');
+    alert('현재 서버가 실행되고있지 않습니다');
   } 
   finally {
     isLoading.value = false;
@@ -195,10 +221,8 @@ async function fetchHistoryDetail(chatID) {
   }
 }
 
-
-
 function todoRobot() {
-  alert("임채성: 1996년생 11월 23일 \n특징: 배드민턴을 하다가 허리를다침");
+  alert("안녕하세요~! 도움을 원하시면 채팅 부탁드립니다!");
 }
 </script>
 

@@ -10,7 +10,7 @@ const router = createRouter({
         // Default Path 설정
         {
             path: '/',
-            redirect: '/main0001',
+            redirect: '/hjBot',
         },
 
         ...mainRoutes,
@@ -19,7 +19,7 @@ const router = createRouter({
         // 404 Path 처리
         {
             path: '/:pathMatch(.*)*',
-            redirect: '/main0001', // 선언되지 않은 Path릂 지정된 경로로 리다이렉트
+            redirect: '/hjBot', // 선언되지 않은 Path릂 지정된 경로로 리다이렉트
         },
     ]
 });
@@ -38,22 +38,24 @@ const isValidRandomCode = (randomCode) => {
 
 // 네비게이션 가드 추가
 router.beforeEach((to, from, next) => {
-    // main0002 라우트인 경우
-    if (to.name === 'main0002') {
+    if (to.name === 'hjBot') {
         const randomCode = to.params.randomCode;
-        
+
+        // 랜덤 코드가 없으면 main0001으로 리다이렉트
         if (!randomCode) {
-            next('/main0001');
+            next('/hjBot');
             return;
         }
 
-        // if (!randomCode || !isValidRandomCode(randomCode)) {
-        //     next('/main0001');
-        //     return;
-        // }
+        // 유효한 randomCode가 아니면 main0001으로 리다이렉트
+        if (randomCode && !isValidRandomCode(randomCode)) {
+            next('/hjBot');
+            return;
+        }
     }
-    
+
     next();
 });
+
 
 export default router;
